@@ -1,7 +1,9 @@
 package com.example.smstest
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import com.example.smstest.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+
     private val callOnClickListener: (View?) -> Unit = {
         requestCallPhonePermission()
     }
@@ -21,10 +24,8 @@ class MainActivity : AppCompatActivity() {
     private val call = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         when(it.resultCode) {
             RESULT_OK -> {
-
             }
             RESULT_CANCELED -> {
-
             }
             else -> {
 
@@ -38,10 +39,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setOnClickListeners()
+        CallService.start(this)
     }
 
     private fun setOnClickListeners() {
         binding.btnMainCall.setOnClickListener(callOnClickListener)
+        binding.btnMainTest.setOnClickListener {
+            sendBroadcast(Intent("com.example.smstest.gogo"))
+        }
     }
 
     private fun requestCallPhonePermission() {
@@ -61,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun  isCallPhonePermissionGranted(): Boolean =
+    private fun isCallPhonePermissionGranted(): Boolean =
         ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED
 
 }
