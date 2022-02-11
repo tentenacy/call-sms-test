@@ -3,11 +3,12 @@ package com.example.smstest
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyManager
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -18,19 +19,19 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
 
     private val callOnClickListener: (View?) -> Unit = {
-        requestCallPhonePermission()
+        requestPhonePermission()
     }
 
     private val call = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         when(it.resultCode) {
-            RESULT_OK -> {
-            }
-            RESULT_CANCELED -> {
-            }
-            else -> {
-
-            }
+            RESULT_OK -> {}
+            RESULT_CANCELED -> {}
+            else -> {}
         }
+    }
+
+    private val telephonyManager: TelephonyManager by lazy {
+        getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,19 +40,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setOnClickListeners()
-        CallService.start(this)
+
+        telephonyManager.listen(CPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
     }
 
     private fun setOnClickListeners() {
         binding.btnMainCall.setOnClickListener(callOnClickListener)
-        binding.btnMainTest.setOnClickListener {
-            sendBroadcast(Intent("com.example.smstest.gogo"))
-        }
     }
 
-    private fun requestCallPhonePermission() {
-        if (isCallPhonePermissionGranted()) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), 200)
+    private fun requestPhonePermission() {
+        if (isCallPhonePermissionNotGranted() || isReadCallLogPermissionNotGranted() || isSendSmsPermissionNotGranted()) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE, Manifest.permission.READ_CALL_LOG, Manifest.permission.SEND_SMS), 200)
         } else {
             try {
                 call.launch(
@@ -66,7 +65,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isCallPhonePermissionGranted(): Boolean =
+    private fun isCallPhonePermissionNotGranted(): Boolean =
         ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED
 
+    private fun isReadCallLogPermissionNotGranted(): Boolean =
+        ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED
+
+    private fun isSendSmsPermissionNotGranted(): Boolean =
+        ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED
 }
