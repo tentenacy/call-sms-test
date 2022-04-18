@@ -11,7 +11,7 @@ import com.esafirm.imagepicker.model.Image
 import com.example.smstest.util.sendMMS
 import java.lang.Exception
 
-class CPhoneStateListener(private val context: Context, private var image: Image?, private val listener: () -> Unit): PhoneStateListener() {
+class CPhoneStateListener(private val context: Context, private var image: Image?): PhoneStateListener() {
     var prevState: Int = 0
     override fun onCallStateChanged(state: Int, phoneNumber: String?) {
         Log.e("CPhoneStateListener", state.toString())
@@ -22,7 +22,9 @@ class CPhoneStateListener(private val context: Context, private var image: Image
             }
             TelephonyManager.CALL_STATE_OFFHOOK -> {
                 Log.e("CPhoneStateListener", "OFFHOOK")
-                listener()
+                val intent = Intent(context, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                context.startActivity(intent)
             }
             TelephonyManager.CALL_STATE_IDLE -> {
                 Log.e("CPhoneStateListener", "IDLE")

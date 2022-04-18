@@ -100,11 +100,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val cPhoneStateListener = CPhoneStateListener(this, image) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        startActivity(intent)
-    }
+    private val cPhoneStateListener = CPhoneStateListener(this, image)
 
     private fun requestPhonePermission() {
         if (isCallPhonePermissionNotGranted() ||
@@ -148,7 +144,6 @@ class MainActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 intent.data = Uri.parse("tel:${binding.editMainPhone.text}")
                 startActivity(intent)
-//                call.launch(intent)
             } catch (e: SecurityException) {
                 e.printStackTrace()
             }
